@@ -41,7 +41,7 @@
                 temp->next = newNode;
             } else {
                 cout << "Vị trí k hợp lệ" << endl;
-                delete newNode; // Free memory if position is invalid
+                delete newNode; 
             }
         }
         void display() {
