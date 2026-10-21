@@ -1,183 +1,62 @@
-    #include <iostream>
-    using namespace std;
-    struct Node {
-        int data;
-        Node* next;
-    };
-    //chen phan tu vao dau danh sach lien ket
-    struct List{
-        Node* head;
-        List() : head(nullptr) {}
-        void insert(int value) {
-            Node* newNode = new Node{value, head};
-            head = newNode;
-        }
-        void display() {
-            Node* temp = head;
-            while (temp) {
-                cout << temp->data << " ";
-                temp = temp->next;
-            }
-            cout << endl;
-        }
-    };
-    //chen phan tu vao vi tri bat ki trong danh sach lien ket
-    struct List{
-        Node* head;
-        List() : head(nullptr) {}
-        void insert(int value, int position) {
-            Node* newNode = new Node{value, nullptr};
-            if (position == 0) {
-                newNode->next = head;
-                head = newNode;
-                return;
-            }
-            Node* temp = head;
-            for (int i = 0; i < position - 1 && temp; ++i) {
-                temp = temp->next;
-            }
-            if (temp) {
-                newNode->next = temp->next;
-                temp->next = newNode;
-            } else {
-                cout << "Vị trí k hợp lệ" << endl;
-                delete newNode; 
-            }
-        }
-        void display() {
-            Node* temp = head;
-            while (temp) {
-                cout << temp->data << " ";
-                temp = temp->next;
-            }
-            cout << endl;
-        }
-    };
-    //chen phan tu vao cuoi danh sach lien ket
-    struct List{
-        Node* head;
-        List() : head(nullptr) {}
-        void insert(int value) {
-            Node* newNode = new Node{value, nullptr};
-            if (!head) {
-                head = newNode;
-            } else {
-                Node* temp = head;
-                while (temp->next) {
-                    temp = temp->next;
-                }
-                temp->next = newNode;
-            }
-        }
-        void display() {
-            Node* temp = head;
-            while (temp) {
-                cout << temp->data << " ";
-                temp = temp->next;
-            }
-            cout << endl;
-        }
-    };
-    //xoa phan tu dau danh sach lien ket
-    struct List{
-        Node* head;
-        List() : head(nullptr) {}
-        void deleteFirst() {
-            if (head) {
-                Node* temp = head;
-                head = head->next;
-                delete temp;
-            } else {
-                cout << "danh sách trống" << endl;
-            }
-        }
-        void display() {
-            Node* temp = head;
-            while (temp) {
-                cout << temp->data << " ";
-                temp = temp->next;
-            }
-            cout << endl;
-        }
-    };
-    //xoa phan tu cuoi danh sach lien ket
-    struct List{
-        Node* head;
-        List() : head(nullptr) {}
-        void deleteLast() {
-            if (!head) {
-                cout << "danh sách trống" << endl;
-                return;
-            }
-            if (!head->next) {
-                delete head;
-                head = nullptr;
-                return;
-            }
-            Node* temp = head;
-            while (temp->next && temp->next->next) {
-                temp = temp->next;
-            }
-            delete temp->next;
-            temp->next = nullptr;
-        }
-        void display() {
-            Node* temp = head;
-            while (temp) {
-                cout << temp->data << " ";
-                temp = temp->next;
-            }
-            cout << endl;
-        }
-    };
-    //xoa phan tu bat ki trong danh sach lien ket
-    struct List{
-        Node* head;
-        List() : head(nullptr) {}
-        void deleteAt(int position) {
-            if (!head) {
-                cout << "danh sách trống" << endl;
-                return;
-            }
-            if (position == 0) {
-                Node* temp = head;
-                head = head->next;
-                delete temp;
-                return;
-            }
-            Node* temp = head;
-            for (int i = 0; i < position - 1 && temp; ++i) {
-                temp = temp->next;
-            }
-            if (temp && temp->next) {
-                Node* nodeToDelete = temp->next;
-                temp->next = nodeToDelete->next;
-                delete nodeToDelete;
-            } else {
-                cout << "vị trí không hợp lệ" << endl;
-            }
-        }
-        void display() {
-            Node* temp = head;
-            while (temp) {
-                cout << temp->data << " ";
-                temp = temp->next;
-            }
-            cout << endl;
-        }
-    };
-    //duyet xuoi danh sach lien ket
-    void traverseForward() {
-        Node* temp = head;
-        while (temp) {
-            cout << temp->data << " ";
-            temp = temp->next;
-        }
-        cout << endl;
+
+#include <iostream>
+#include <stdexcept>
+
+// Danh sach tuan tu: luu cac phan tu lien tiep trong mang.
+// Vi tri duoc danh so tu 0 den size() - 1.
+class List {
+    static const int CAPACITY = 100;
+    int data[CAPACITY];
+    int length;
+public:
+    List() : length(0) {}
+    bool isEmpty() const { return length == 0; }
+    bool isFull() const { return length == CAPACITY; }
+    int size() const { return length; }
+
+    int at(int position) const {
+        if (position < 0 || position >= length)
+            throw std::out_of_range("Vi tri khong hop le");
+        return data[position];
     }
-    //duyet nguoc danh sach lien ket
-    void traverseBackward(Node* node) {
-        if (!node) return;
-        traverseBackward(node->next);
-        cout << node->data << " ";
+
+    void insert(int value) { insert(value, 0); }
+    void insert(int value, int position) {
+        if (position < 0 || position > length)
+            throw std::out_of_range("Vi tri khong hop le");
+        if (isFull()) throw std::overflow_error("List day");
+        // Dich sang phai de tao cho trong tai position.
+        for (int i = length; i > position; --i)
+            data[i] = data[i - 1];
+        data[position] = value;
+        ++length;
     }
+    void insertAtTail(int value) { insert(value, length); }
+
+    void deleteAt(int position) {
+        if (position < 0 || position >= length)
+            throw std::out_of_range("Vi tri khong hop le");
+        // Dich sang trai de lap cho trong sau khi xoa.
+        for (int i = position; i < length - 1; ++i)
+            data[i] = data[i + 1];
+        --length;
+    }
+    void deleteFirst() {
+        if (!isEmpty()) deleteAt(0);
+    }
+    void deleteLast() {
+        if (!isEmpty()) --length;
+    }
+    void display() const {
+        for (int i = 0; i < length; ++i)
+            std::cout << data[i] << ' ';
+        std::cout << '\n';
+    }
+    void traverseForward() const { display(); }
+    void traverseBackward() const {
+        for (int i = length - 1; i >= 0; --i)
+            std::cout << data[i] << ' ';
+        std::cout << '\n';
+    }
+};
+
